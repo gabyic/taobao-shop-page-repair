@@ -1,7 +1,7 @@
 (() => {
   const API_KEY = "ShopCategoryContext";
   const REQUIRED_CUSTOM_SCORE = 4;
-  const HOME_PATHS = new Set(["/", "/index.htm"]);
+  const HOME_PATHS = new Set(["/", "/index.htm", "/shop/view_shop.htm"]);
   const EXCLUDED_HOSTS = new Set([
     "www.taobao.com",
     "item.taobao.com",
@@ -180,12 +180,15 @@
     );
   }
 
+  // 首页由 redirect-home.js 单独处理并跳转，其余店铺内页面（分类页、
+  // 搜索/筛选页、商品详情页等，不限定具体 URL 格式）都是修复候选，
+  // 是否真正执行修复交给 classifyShopContext 的结构信号确认。
   function isCandidateCategoryLocation(locationLike) {
     const { hostname, pathname } = normalizeLocation(locationLike);
     return (
       Boolean(getPlatform(hostname)) &&
       !isExcludedHost(hostname) &&
-      pathname === "/category.htm"
+      !HOME_PATHS.has(pathname)
     );
   }
 

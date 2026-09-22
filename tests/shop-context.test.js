@@ -98,7 +98,7 @@ test("普通淘宝页面即使伪造部分信号也明确拒绝", () => {
   }
 });
 
-test("首页和分类页候选路径保持严格", () => {
+test("首页路径精确排除，店铺内其余页面均为修复候选", () => {
   assert.equal(
     isCandidateHomeLocation({ hostname: "custom.taobao.com", pathname: "/" }),
     true
@@ -108,20 +108,49 @@ test("首页和分类页候选路径保持严格", () => {
     true
   );
   assert.equal(
-    isCandidateHomeLocation({ hostname: "item.taobao.com", pathname: "/" }),
-    false
-  );
-  assert.equal(
-    isCandidateCategoryLocation({
-      hostname: "custom.taobao.com",
-      pathname: "/category.htm",
+    isCandidateHomeLocation({
+      hostname: "jiyoujia492511957.jiyoujia.com",
+      pathname: "/shop/view_shop.htm",
     }),
     true
   );
   assert.equal(
+    isCandidateHomeLocation({ hostname: "item.taobao.com", pathname: "/" }),
+    false
+  );
+
+  // 首页路径本身不是候选（由 redirect-home.js 单独处理并跳转）。
+  for (const pathname of ["/", "/index.htm", "/shop/view_shop.htm"]) {
+    assert.equal(
+      isCandidateCategoryLocation({
+        hostname: "jiyoujia492511957.jiyoujia.com",
+        pathname,
+      }),
+      false
+    );
+  }
+
+  // 分类页、带分类编号的分类页、搜索/筛选页、商品详情页，以及任何
+  // 未来可能出现的未知路径格式，只要不是首页都作为候选，是否真正
+  // 修复交给 classifyShopContext 的结构信号确认。
+  for (const pathname of [
+    "/category.htm",
+    "/category-1782983743.htm",
+    "/category-abc.htm",
+    "/search.htm",
+    "/item.htm",
+    "/promotion-2024.htm",
+  ]) {
+    assert.equal(
+      isCandidateCategoryLocation({ hostname: "custom.taobao.com", pathname }),
+      true
+    );
+  }
+
+  assert.equal(
     isCandidateCategoryLocation({
-      hostname: "custom.taobao.com",
-      pathname: "/item.htm",
+      hostname: "item.taobao.com",
+      pathname: "/category.htm",
     }),
     false
   );

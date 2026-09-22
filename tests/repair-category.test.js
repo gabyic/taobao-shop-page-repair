@@ -17,17 +17,24 @@ const {
   shouldRestoreLinkGroup,
 } = require("../repair-category.js");
 
-test("Manifest 1.7.1 使用统一名称并在淘宝和极有家子域名注入公共识别器", () => {
-  assert.equal(manifest.version, "1.7.1");
+test("Manifest 1.7.3 使用统一名称并在淘宝和极有家全部子域名注入公共识别器", () => {
+  assert.equal(manifest.version, "1.7.3");
   assert.equal(manifest.name, "淘宝店铺页面修复助手");
   const repairEntries = manifest.content_scripts.filter((entry) =>
     entry.js?.includes("repair-category.js")
   );
 
   assert.equal(repairEntries.length, 1);
-  assert.deepEqual(repairEntries[0].js, ["shop-context.js", "repair-category.js"]);
-  assert.ok(repairEntries[0].matches.includes("https://*.jiyoujia.com/category.htm*"));
-  assert.ok(repairEntries[0].matches.includes("https://*.taobao.com/category.htm*"));
+  assert.equal(manifest.content_scripts.length, 1);
+  assert.deepEqual(repairEntries[0].js, [
+    "shop-context.js",
+    "redirect-home.js",
+    "repair-category.js",
+  ]);
+  assert.deepEqual(repairEntries[0].matches, [
+    "https://*.jiyoujia.com/*",
+    "https://*.taobao.com/*",
+  ]);
   assert.equal(repairEntries[0].include_globs, undefined);
   assert.equal(repairEntries[0].css, undefined);
 });
@@ -53,6 +60,9 @@ test("数字店铺直接支持，自定义域名必须带店铺结构", () => {
   };
   const accepted = [
     ["jiyoujia492511957.jiyoujia.com", "/category.htm"],
+    ["jiyoujia492511957.jiyoujia.com", "/category-1782983743.htm"],
+    ["jiyoujia492511957.jiyoujia.com", "/search.htm"],
+    ["jiyoujia492511957.jiyoujia.com", "/item.htm"],
     ["shop203317430.taobao.com", "/category.htm"],
     ["SHOP203317430.TAOBAO.COM", "/CATEGORY.HTM"],
   ];
@@ -60,7 +70,7 @@ test("数字店铺直接支持，自定义域名必须带店铺结构", () => {
     ["www.taobao.com", "/category.htm"],
     ["item.taobao.com", "/category.htm"],
     ["shop203317430.taobao.com", "/"],
-    ["shop203317430.taobao.com", "/item.htm"],
+    ["shop203317430.taobao.com", "/index.htm"],
   ];
 
   for (const [hostname, pathname] of accepted) {
