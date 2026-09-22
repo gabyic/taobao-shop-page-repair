@@ -7,19 +7,19 @@
 ```text
 https://jiyoujia<店铺编号>.jiyoujia.com/
 https://jiyoujia<店铺编号>.jiyoujia.com/index.htm
-https://jiyoujia<店铺编号>.jiyoujia.com/category.htm*
+https://jiyoujia<店铺编号>.jiyoujia.com/shop/view_shop.htm      # 首页，触发跳转
+https://jiyoujia<店铺编号>.jiyoujia.com/category.htm*           # 分类页
+https://jiyoujia<店铺编号>.jiyoujia.com/category-<分类编号>.htm*  # 分类页
+https://jiyoujia<店铺编号>.jiyoujia.com/search.htm*             # 搜索/筛选页
+https://jiyoujia<店铺编号>.jiyoujia.com/item.htm*               # 商品详情页
+（以及店铺内任何其他路径）
 
-https://shop<店铺编号>.taobao.com/
-https://shop<店铺编号>.taobao.com/index.htm
-https://shop<店铺编号>.taobao.com/category.htm*
-
-https://<自定义子域名>.taobao.com/
-https://<自定义子域名>.taobao.com/category.htm*
-https://<自定义子域名>.jiyoujia.com/
-https://<自定义子域名>.jiyoujia.com/category.htm*
+https://shop<店铺编号>.taobao.com/ …                            # 同上，淘宝数字店铺
+https://<自定义子域名>.taobao.com/ …                            # 同上，淘宝自定义域名
+https://<自定义子域名>.jiyoujia.com/ …                          # 同上，极有家自定义域名
 ```
 
-访问数字店铺首页 `/` 或 `/index.htm` 时，扩展会立即跳转到干净的 `/category.htm`。自定义子域名不会仅凭域名跳转：扩展会先在本地确认店铺结构、分类链接等信号，再执行跳转。分类页也必须通过同一识别器，确认后才会加载修复 CSS 和条件式 JavaScript；未确认的淘宝/极有家页面不会应用修复样式。
+访问数字店铺首页 `/`、`/index.htm` 或 `/shop/view_shop.htm` 时，扩展会立即跳转到干净的 `/category.htm`。自定义子域名不会仅凭域名跳转：扩展会先在本地确认店铺结构、分类链接等信号，再执行跳转。除首页外，店铺内任何路径（分类页、搜索/筛选页、商品详情页等，不限定具体 URL 格式）都会经同一识别器确认后加载修复 CSS 和条件式 JavaScript；未确认的淘宝/极有家页面不会应用修复样式。
 
 条件式修复会检测异常超高店招，以及确实被隐藏且包含足够商品或分类链接的模块。只有满足异常条件的节点才会被恢复；普通弹窗、轮播、移动菜单和带 `aria-hidden` 的交互区域不会被当作商品或分类容器恢复。
 
@@ -67,7 +67,7 @@ https://<自定义子域名>.jiyoujia.com/category.htm*
 
 ### 本地诊断
 
-推荐使用 1.7.1 的通用状态面板：
+推荐使用 1.7.3 的通用状态面板：
 
 1. 打开异常的淘宝或极有家店铺 `/category.htm` 分类页。
 2. 点击浏览器工具栏中的“淘宝店铺页面修复助手”扩展图标。
@@ -97,10 +97,10 @@ document.documentElement.getAttribute("data-shop-category-repair-actions")
 ## 作用边界
 
 - 扩展只修复浏览器本地显示，不会修改淘宝/极有家服务器上的装修代码。
-- 扩展清单匹配 `https://*.jiyoujia.com/*` 和 `https://*.taobao.com/*`；实际行为由 `shop-context.js` 统一判断，避免跳转、修复、诊断和面板出现不同识别口径。
+- 扩展清单统一匹配 `https://*.jiyoujia.com/*` 和 `https://*.taobao.com/*`，不再按具体路径分组注入；实际行为完全由 `shop-context.js` 统一判断，避免跳转、修复、诊断和面板出现不同识别口径。
 - 数字店铺域名直接识别；自定义域名必须通过店铺结构、分类链接等组合信号，不提供手工永久白名单。
 - `www.taobao.com`、`item.taobao.com`、`s.taobao.com` 等普通淘宝子域名明确排除，即使页面出现部分相似元素也不会触发。
-- 首页跳转只在根路径 `/` 或 `/index.htm` 生效，分类页、翻页和商品详情页不会重复跳转。
+- 首页跳转只在根路径 `/`、`/index.htm` 或极有家的 `/shop/view_shop.htm` 生效；除首页外，店铺内任意路径（分类页、搜索/筛选页、商品详情页等，不限定具体 URL 格式）都会经结构信号确认后参与条件式修复，不会重复触发首页跳转。
 - 首页跳转使用干净的 `/category.htm`，不会携带旧页面的 `callback`、`pageNo` 或 `_ksTS` 参数。
 - 旧版已知 DOM 继续由 `repair.css` 兼容，但该样式只在店铺页确认后加载；其他结构由 `repair-category.js` 按异常状态检测。淘宝若彻底改变商品链接或页面渲染方式，仍可能需要升级检测规则。
 - 损坏弹层修复是条件式且可逆的：必须同时具有隐藏状态、弹层语义、异常尺寸和覆盖视口的子节点，且不能是商品列表；隐藏状态解除后不再强制隐藏。

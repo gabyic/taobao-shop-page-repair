@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "淘宝店铺页面修复助手",
-  "version": "1.7.1",
+  "version": "1.7.3",
   "description": "识别淘宝和极有家数字或自定义店铺域名，将店铺首页跳转到分类页，并条件式恢复异常模块。",
   "permissions": [
     "activeTab",
@@ -19,17 +19,7 @@
       ],
       "js": [
         "shop-context.js",
-        "redirect-home.js"
-      ],
-      "run_at": "document_start"
-    },
-    {
-      "matches": [
-        "https://*.jiyoujia.com/category.htm*",
-        "https://*.taobao.com/category.htm*"
-      ],
-      "js": [
-        "shop-context.js",
+        "redirect-home.js",
         "repair-category.js"
       ],
       "run_at": "document_start"

@@ -14,6 +14,24 @@ test("数字店铺首页可以在 DOM 尚未加载时立即跳转", () => {
   assert.equal(decision.target, "https://shop203317430.taobao.com/category.htm");
 });
 
+test("极有家 /shop/view_shop.htm 首页可以在 DOM 尚未加载时立即跳转", () => {
+  const decision = getHomeRedirectDecision(
+    {
+      hostname: "jiyoujia492511957.jiyoujia.com",
+      pathname: "/shop/view_shop.htm",
+      origin: "https://jiyoujia492511957.jiyoujia.com",
+    },
+    null
+  );
+
+  assert.equal(decision.redirect, true);
+  assert.equal(decision.waitForDocument, false);
+  assert.equal(
+    decision.target,
+    "https://jiyoujia492511957.jiyoujia.com/category.htm"
+  );
+});
+
 test("自定义域名首页必须等 DOM 店铺信号确认后跳转", () => {
   const locationLike = {
     hostname: "ikfs0orn453wy1jhzjt0c5bydawewrm.taobao.com",
